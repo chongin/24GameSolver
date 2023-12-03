@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'api_client.dart'; // Import the ApiClient
 
 void main() {
   runApp(MyApp());
@@ -79,6 +80,38 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               SizedBox(width: 10),
+              for (String symbol in symbols)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Text(
+                        symbol,
+                        style: TextStyle(fontSize: 24, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Formula:',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: 10),
               for (int i = 0; i < 11; i++)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -88,6 +121,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (String? value) {
                       setState(() {
                         selectedValues[i][0] = value;
+                        ApiClient.updateValue(i, value);
+                        print('Dropdown Item Index: $i, Value: $value');
+
                       });
                     },
                   ),
