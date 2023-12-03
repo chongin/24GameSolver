@@ -24,19 +24,32 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<int> digits = [2, 4, 6, 8];
+  List<int> digits = [-1, -1, -1, -1];
   List<String> symbols = ['+', '-', '*', '/', '(', ')'];
   List<List<String?>> selectedValues = List.generate(11, (_) => [null]);
-
+  String resultLabel = "Waiting Result";
   void startNewGame() {
     ApiClient.newGame((List<int> newDigits) {
       setState(() {
         // Update the digits value with the new data
         digits = newDigits;
+        selectedValues = List.generate(11, (_) => [null]);
+        resultLabel = "Waiting Result";
       });
     });
   }
 
+  void updateResult() {
+    ApiClient.calculate((int result) {
+      setState(() {
+        if (result == 24) {
+          resultLabel = '$result: You win!';
+        } else {
+          resultLabel = '$result: You lost!';
+        }
+      });
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,10 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               SizedBox(width: 10),
               ElevatedButton(
-                onPressed: () {
-                  // Call the method to calculate the game
-                  ApiClient.calculate();
-                },
+                onPressed: updateResult,
                 child: Text('Calculate'),
               ),
             ],
@@ -155,6 +165,19 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                 ),
+            ],
+          ),
+          // New row for the label
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                resultLabel,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ],
