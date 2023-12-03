@@ -28,6 +28,15 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> symbols = ['+', '-', '*', '/', '(', ')'];
   List<List<String?>> selectedValues = List.generate(11, (_) => [null]);
 
+  void startNewGame() {
+    ApiClient.newGame((List<int> newDigits) {
+      setState(() {
+        // Update the digits value with the new data
+        digits = newDigits;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,6 +46,24 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: startNewGame,
+                child: Text('New Game'),
+              ),
+              SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () {
+                  // Call the method to calculate the game
+                  ApiClient.calculate();
+                },
+                child: Text('Calculate'),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
