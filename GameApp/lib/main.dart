@@ -30,7 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<List<String?>> selectedValues = List.generate(11, (_) => [null]);
   String resultLabel = "Waiting Result";
   late Timer _timer;
-  int _timerSeconds = 10; // Initial value for the timer
+  int _timerSeconds = 120; // Initial value for the timer
 
   void startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -87,20 +87,29 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(width: 100),
+          SizedBox(height: 20),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children:[
-              Text(
-                'Time: $_timerSeconds seconds',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                padding: EdgeInsets.all(60),
+                decoration: BoxDecoration(
+                  color: Colors.blue, // Set your desired background color
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'Time Remain: $_timerSeconds seconds',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white, // Set your desired text color
+                  ),
                 ),
               ),
             ]
-
           ),
+
+          SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -108,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: startNewGame,
                 child: Text('New Game'),
               ),
-              SizedBox(width: 10),
+              SizedBox(width: 20),
               ElevatedButton(
                 onPressed: calculateAndUpdateResult,
                 child: Text('Calculate'),
@@ -258,13 +267,14 @@ class _MyHomePageState extends State<MyHomePage> {
         digits = newDigits;
         selectedValues = List.generate(11, (_) => [null]);
         resultLabel = "Waiting Result";
-        _timerSeconds = 10; // Reset timer to initial value
+        _timerSeconds = 120; // Reset timer to initial value
         startTimer(); // Start the timer on New Game
       });
     });
   }
 
   Future<void> calculateAndUpdateResult() async {
+    stopTimer();
     // Filter out null values from the selected dropdown values
     List<String> selectedValuesList = selectedValues
         .where((list) => list[0] != null)
