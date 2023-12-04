@@ -30,7 +30,6 @@ class SerialCommunication:
     def read_data(self):
         response = self.ser.readline().decode('utf-8')
         if response:
-            print(f"Received response: {response}")
             if 'Ready' in response:
                 print("Received Ready.")
             else:

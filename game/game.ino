@@ -1,20 +1,34 @@
 #include <ArduinoJson.h>
+#include "Lcd.h"
+#include "game.h"
+
+LCDMgr lcdManager;
+Game *game = NULL;
 
 void setup() {
-  Serial.begin(115200);  // Set the baud rate to match the Python code
+  Serial.begin(115200);
   Serial.println("Ready");
 }
 
 void processCommand(const char* command, JsonObject& data) {
   if (strcmp(command, "new_game") == 0) {
-    JsonArray digits = data["digits"];
+    game = new Game(lcdManager);
+    JsonArray digitsJsonArray = data["digits"];
+
+    if(digitsJsonArray.size() == 4)
+    {
+      int digits[4];
+      for (int i = 0; i < 4; ++i)
+      {
+        digits[i] = digitsJsonArray[i].as<int>();
+      }
+      game->setDigits(digits);
+    }
+    
+
     DynamicJsonDocument doc(200);
     doc["command"] = "new_game";
-    JsonArray data = doc.createNestedArray("data");
-    data.add(1);
-    data.add(2);
-    data.add(3);
-    data.add(4);
+    doc["data"] = digitsJsonArray;
 
     String jsonString;
     serializeJson(doc, jsonString);
@@ -43,4 +57,6 @@ void loop() {
 
     delay(50);  // Add a delay for stability
   }
+  lcdManager.Update();
+
 }
