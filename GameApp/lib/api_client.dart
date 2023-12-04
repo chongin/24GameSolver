@@ -14,14 +14,14 @@ class ApiClient {
     // print(response.body);
   }
 
-  static Future<void> calculate(void Function(int) onUpdateResult) async {
+  static Future<int> calculateFormula(String formula) async {
     await Future.delayed(Duration(seconds: 1));
 
-    print('API Call: calcuate -');
+    print('API Call: calcuate $formula');
 
     final random = Random();
     int result = random.nextInt(30);
-    onUpdateResult(result);
+    return result;
   }
 
   static Future<void> newGame(void Function(List<int>) onNewGameData) async {

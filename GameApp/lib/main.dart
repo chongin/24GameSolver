@@ -39,17 +39,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void updateResult() {
-    ApiClient.calculate((int result) {
-      setState(() {
-        if (result == 24) {
-          resultLabel = '$result: You win!';
-        } else {
-          resultLabel = '$result: You lost!';
-        }
-      });
-    });
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               SizedBox(width: 10),
               ElevatedButton(
-                onPressed: updateResult,
+                onPressed: calculateAndUpdateResult,
                 child: Text('Calculate'),
               ),
             ],
@@ -171,11 +160,22 @@ class _MyHomePageState extends State<MyHomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                resultLabel,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              Card(
+                color: resultLabel.contains('win') ? Colors.green : Colors.red, // Green for win, red for lose
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    resultLabel,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -196,6 +196,29 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     )
         .toList();
+  }
+
+  Future<void> calculateAndUpdateResult() async {
+    // Filter out null values from the selected dropdown values
+    List<String> selectedValuesList = selectedValues
+        .where((list) => list[0] != null)
+        .map((list) => list[0]!)
+        .toList();
+
+    // Compose the selected values into a string
+    String formula = selectedValuesList.join();
+
+    // Call the API to calculate the result
+    int result = await ApiClient.calculateFormula(formula);
+
+    // Update the result label
+    setState(() {
+      if (result == 24) {
+        resultLabel = '$result: You win!';
+      } else {
+        resultLabel = '$result: You lost!';
+      }
+    });
   }
 }
 
