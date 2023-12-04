@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'api_client.dart'; // Import the ApiClient
+import 'dart:async';
 
 void main() {
   runApp(MyApp());
@@ -28,26 +29,78 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> symbols = ['+', '-', '*', '/', '(', ')'];
   List<List<String?>> selectedValues = List.generate(11, (_) => [null]);
   String resultLabel = "Waiting Result";
-  void startNewGame() {
-    ApiClient.newGame((List<int> newDigits) {
+  late Timer _timer;
+  int _timerSeconds = 10; // Initial value for the timer
+
+  void startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
-        // Update the digits value with the new data
-        digits = newDigits;
-        selectedValues = List.generate(11, (_) => [null]);
-        resultLabel = "Waiting Result";
+        if (_timerSeconds > 0) {
+          _timerSeconds--;
+        } else {
+          // Timer has reached 0, show popup and update result
+          _timer.cancel();
+          _showTimeoutDialog();
+          resultLabel = "You are Lost!";
+        }
       });
     });
+  }
+
+  void stopTimer() {
+    _timer.cancel();
+  }
+
+  Future<void> _showTimeoutDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Timeout'),
+          content: Text('Sorry, you ran out of time!'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('24 Game Solver'),
+        title: Text(
+          '24 Game Solver',
+          style: TextStyle(
+            fontSize: 30, // Adjust the font size as needed
+            fontWeight: FontWeight.bold, // Add bold font weight
+            color: Colors.deepPurple, // Set your desired color
+          ),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          SizedBox(width: 100),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children:[
+              Text(
+                'Time: $_timerSeconds seconds',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ]
+
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -196,6 +249,19 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     )
         .toList();
+  }
+
+  void startNewGame() {
+    ApiClient.newGame((List<int> newDigits) {
+      setState(() {
+        // Update the digits value with the new data
+        digits = newDigits;
+        selectedValues = List.generate(11, (_) => [null]);
+        resultLabel = "Waiting Result";
+        _timerSeconds = 10; // Reset timer to initial value
+        startTimer(); // Start the timer on New Game
+      });
+    });
   }
 
   Future<void> calculateAndUpdateResult() async {
