@@ -29,10 +29,11 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> symbols = ['+', '-', '*', '/', '(', ')'];
   List<List<String?>> selectedValues = List.generate(11, (_) => [null]);
   String resultLabel = "Waiting Result";
-  late Timer _timer;
+  late Timer _timer = Timer(Duration.zero, () {});
   int _timerSeconds = 120; // Initial value for the timer
 
   void startTimer() {
+    stopTimer();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         if (_timerSeconds > 0) {
@@ -49,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void stopTimer() {
     _timer.cancel();
+    _timer = Timer(Duration.zero, () {});;
   }
 
   Future<void> _showTimeoutDialog() async {

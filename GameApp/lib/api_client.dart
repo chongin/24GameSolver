@@ -1,6 +1,8 @@
 // api_client.dart
 import 'dart:async';
 import 'dart:math';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ApiClient {
   static Future<void> updateValue(int index, String? value) async {
@@ -20,15 +22,21 @@ class ApiClient {
   }
 
   static Future<void> newGame(void Function(List<int>) onNewGameData) async {
-    await Future.delayed(Duration(seconds: 1));
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:5000/games/new_game'));
 
-    print('API Call: New Game -');
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        final jsonResponse = json.decode(response.body);
+        final digits = List<int>.from(jsonResponse['digits']);
 
-    // Generate a random 4-digit number
-    final random = Random();
-    final randomDigits = List.generate(4, (_) => random.nextInt(10));
-
-    // Call the callback function with the new game data
-    onNewGameData(randomDigits);
+        // Call the callback function with the new game data
+        onNewGameData(digits);
+      } else {
+        print('Failed to get new game data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error during API call: $e');
+    }
   }
 }
