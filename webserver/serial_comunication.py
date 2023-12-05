@@ -57,15 +57,10 @@ def start_serial_communication():
     communication = SerialCommunication(port)
     communication.run_communication()
 
-if __name__ == "__main__":
-    # Start the serial communication on a separate thread
-    serial_thread = threading.Thread(target=start_serial_communication)
-    serial_thread.start()
+# if __name__ == "__main__":
+#     serial_thread = threading.Thread(target=start_serial_communication)
+#     serial_thread.start()
     
-    time.sleep(1)
-    communication.send_data("LED", 1)
-    # Add your main program logic here if needed
-    # ...
-
-    # Wait for the serial thread to finish (optional)
-    serial_thread.join()
+#     time.sleep(1)
+#     communication.send_data("LED", 1)
+#     serial_thread.join()
