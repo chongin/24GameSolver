@@ -63,4 +63,26 @@ class ApiClient {
           'Failed to get new game data. Status code: ${response.statusCode}');
     }
   }
+
+  static Future<void> clearFormula() async {
+    final Uri uri = Uri.parse('http://127.0.0.1:5000/games/clear_formula');
+    final Map<String, String> headers = {'Content-Type': 'application/json'};
+    final Map<String, dynamic> requestBody = {'formula': ""};
+
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(requestBody),
+    );
+
+    print('API Call: clear formula');
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      print('Response Data: $responseData');
+    } else {
+      throw Exception(
+          'Failed to clear formula. Status code: ${response.statusCode}');
+    }
+  }
 }

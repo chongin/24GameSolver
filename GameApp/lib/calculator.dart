@@ -89,12 +89,12 @@ class _CalculatorUIState extends State<CalculatorUI> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () async {
+                onPressed: isGameStarted == false ? () async {
                   bool success = await startNewGame();
                   setState(() {
                     isGameStarted = success;
                   });
-                },
+                }: null,
                 style: ElevatedButton.styleFrom(
                   primary: Colors.blue,
                   textStyle: TextStyle(fontSize: 18),
@@ -194,12 +194,27 @@ class _CalculatorUIState extends State<CalculatorUI> {
               Expanded(
                 child: TextField(
                   controller: formulaController,
+                  enabled: false,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'Enter your formula',
                   ),
-                  style: TextStyle(fontSize: 24),
+                  style: TextStyle(fontSize: 24, color: Colors.black),
                 ),
+              ),
+              SizedBox(width: 10), // Add space between the TextField and the Clear button
+              ElevatedButton(
+                onPressed: isGameStarted ? () async {
+                  bool result = await clearFormula();
+                  if (result == true) {
+                    formulaController.clear();
+                  }
+                }: null,
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue,
+                  textStyle: TextStyle(fontSize: 18),
+                ),
+                child: Text('Clear'),
               ),
             ],
           ),
@@ -284,6 +299,16 @@ class _CalculatorUIState extends State<CalculatorUI> {
     }
   }
 
+  Future<bool> clearFormula() async {
+    try {
+      await ApiClient.clearFormula();
+      return true;
+    } catch (error) {
+      DialogUtils.showErrorDialog(context,
+          'An error occurred while processing the clearFormula: $error');
+      return false;
+    }
+  }
   void resetData() {
     digits = [1,2,3,4];
     resultLabel = "Waiting Result";
