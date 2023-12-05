@@ -37,7 +37,7 @@ class _CameraViewState extends State<CameraView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 700, // Adjust the width as needed
+      width: 800, // Adjust the width as needed
       child: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {

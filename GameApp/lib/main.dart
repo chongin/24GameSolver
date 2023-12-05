@@ -52,13 +52,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        body: Row(
-          children: [
-            Expanded(
-              child: CalculatorUI(),
-            ),
-            CameraView(cameras: widget.cameras),
-          ],
+        body: SafeArea(
+            child: Row(
+              children: [
+                Expanded(
+                  child: CalculatorUI(),
+                ),
+                CameraView(cameras: widget.cameras),
+              ],
+            )
+
         )
     );
   }
