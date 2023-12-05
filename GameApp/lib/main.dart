@@ -32,6 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String resultLabel = "Waiting Result";
   late Timer _timer = Timer(Duration.zero, () {});
   int _timerSeconds = 120; // Initial value for the timer
+  bool isGameStarted = false;
 
   void startTimer() {
     stopTimer();
@@ -51,7 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void stopTimer() {
     _timer.cancel();
-    _timer = Timer(Duration.zero, () {});;
+    _timer = Timer(Duration.zero, () {});
+    ;
   }
 
   Future<void> _showTimeoutDialog() async {
@@ -91,38 +93,45 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(height: 20),
-          Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                padding: EdgeInsets.all(60),
-                decoration: BoxDecoration(
-                  color: Colors.blue, // Set your desired background color
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  'Time Remain: $_timerSeconds seconds',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white, // Set your desired text color
-                  ),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Container(
+              padding: EdgeInsets.all(60),
+              decoration: BoxDecoration(
+                color: Colors.blue, // Set your desired background color
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                'Time Remain: $_timerSeconds seconds',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white, // Set your desired text color
                 ),
               ),
-            ]
-          ),
+            ),
+          ]),
 
           SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: startNewGame,
+                onPressed: () async {
+                  bool success = await startNewGame();
+                  setState(() {
+                    isGameStarted = success;
+                  });
+                },
                 child: Text('New Game'),
               ),
               SizedBox(width: 20),
               ElevatedButton(
-                onPressed: calculateAndUpdateResult,
+                onPressed: isGameStarted ? () async {
+                  await calculateAndUpdateResult();
+                  setState(() {
+                    isGameStarted = false;
+                  });
+                } : null,
                 child: Text('Calculate'),
               ),
             ],
@@ -214,7 +223,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         selectedValues[i][0] = value;
                         updateValue(i, value);
                         print('Dropdown Item Index: $i, Value: $value');
-
                       });
                     },
                   ),
@@ -226,7 +234,9 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Card(
-                color: resultLabel.contains('win') ? Colors.green : Colors.red, // Green for win, red for lose
+                color: resultLabel.contains('win')
+                    ? Colors.green
+                    : Colors.red, // Green for win, red for lose
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -251,19 +261,22 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<DropdownMenuItem<String?>> getDropdownItems() {
-    List<String> items = [...symbols, ...digits.map((digit) => digit.toString())];
+    List<String> items = [
+      ...symbols,
+      ...digits.map((digit) => digit.toString())
+    ];
 
     return items
         .map(
           (item) => DropdownMenuItem<String?>(
-        value: item,
-        child: Text(item),
-      ),
-    )
+            value: item,
+            child: Text(item),
+          ),
+        )
         .toList();
   }
 
-  Future<void> startNewGame() async {
+  Future<bool> startNewGame() async {
     try {
       await ApiClient.newGame((List<int> newDigits) {
         setState(() {
@@ -275,18 +288,20 @@ class _MyHomePageState extends State<MyHomePage> {
           startTimer(); // Start the timer on New Game
         });
       });
-    }
-    catch (error) {
-      DialogUtils.showErrorDialog(context, 'An error occurred while processing the startNewGame: $error');
+      return true;
+    } catch (error) {
+      DialogUtils.showErrorDialog(context,
+          'An error occurred while processing the startNewGame: $error');
+      return false;
     }
   }
 
   Future<void> updateValue(int index, String? value) async {
     try {
       await ApiClient.updateValue(index, value);
-    }
-    catch (error) {
-      DialogUtils.showErrorDialog(context, 'An error occurred while processing the updateValue: $error');
+    } catch (error) {
+      DialogUtils.showErrorDialog(context,
+          'An error occurred while processing the updateValue: $error');
     }
   }
 
@@ -313,9 +328,9 @@ class _MyHomePageState extends State<MyHomePage> {
           resultLabel = '$result: You lost!';
         }
       });
-    }
-    catch (error) {
-      DialogUtils.showErrorDialog(context, 'An error occurred while processing the calculateAndUpdateResult: $error');
+    } catch (error) {
+      DialogUtils.showErrorDialog(context,
+          'An error occurred while processing the calculateAndUpdateResult: $error');
     }
   }
 }
@@ -332,7 +347,8 @@ class CustomDropdownButton<T> extends StatefulWidget {
   });
 
   @override
-  _CustomDropdownButtonState<T> createState() => _CustomDropdownButtonState<T>();
+  _CustomDropdownButtonState<T> createState() =>
+      _CustomDropdownButtonState<T>();
 }
 
 class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {

@@ -20,7 +20,8 @@ class ApiClient {
       final jsonResponse = json.decode(response.body);
       print('Response Data: $jsonResponse');
     } else {
-      throw Exception('Failed to updateValue. Status code: ${response.statusCode}');
+      throw Exception(
+          'Failed to updateValue. Status code: ${response.statusCode}');
     }
   }
 
@@ -42,12 +43,14 @@ class ApiClient {
       print('Response Data: $responseData');
       return responseData['result'] as int;
     } else {
-      throw Exception('Failed to calculate formula. Status code: ${response.statusCode}');
+      throw Exception(
+          'Failed to calculate formula. Status code: ${response.statusCode}');
     }
   }
 
   static Future<void> newGame(void Function(List<int>) onNewGameData) async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:5000/games/new_game'));
+    final response =
+        await http.get(Uri.parse('http://127.0.0.1:5000/games/new_game'));
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
@@ -56,7 +59,8 @@ class ApiClient {
 
       onNewGameData(digits);
     } else {
-      throw Exception('Failed to get new game data. Status code: ${response.statusCode}');
+      throw Exception(
+          'Failed to get new game data. Status code: ${response.statusCode}');
     }
   }
 }
