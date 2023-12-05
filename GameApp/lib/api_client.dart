@@ -8,8 +8,14 @@ class ApiClient {
   static Future<void> updateValue(int index, String? value) async {
     print('API Call: update_value - Index: $index, Value: $value');
 
-    final Uri uri = Uri.parse('http://127.0.0.1:5000/games/update/index/$index/value/$value');
-    final response = await http.get(uri);
+    final Uri uri = Uri.parse('http://127.0.0.1:5000/games/update_value');
+    final Map<String, String> headers = {'Content-Type': 'application/json'};
+    final Map<String, dynamic> requestBody = {'index': index, 'value': value};
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(requestBody),
+    );
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       print('Response Data: $jsonResponse');

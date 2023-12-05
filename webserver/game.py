@@ -24,6 +24,7 @@ class Game:
         self.serial_comunication.send_data("new_game", data)
 
     def update_value(self, index: int, value: str) -> dict:
+        print(f"Receive update_value index: {index}, value: {value}")
         if (0 <= index < len(self.items)):
             self.items[index] = value
             self.serial_comunication.send_data("update_value", {

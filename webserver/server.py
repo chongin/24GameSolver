@@ -22,7 +22,7 @@ class MockSerialCommunication:
       pass
 
 
-mock = False
+mock = True
 current_game = None
 port = '/dev/cu.usbmodem11101'
 serial_comunication = SerialCommunication(port) if not mock else MockSerialCommunication(port)
@@ -36,8 +36,11 @@ def new_game():
    current_game = Game(serial_comunication)
    return jsonify({'digits': current_game.digits})
 
-@app.route('/games/update/index/<int:index>/value/<string:value>', methods=['GET'])
-def update_value(index, value):
+@app.route('/games/update_value', methods=['POST'])
+def update_value():
+   data = request.get_json()
+   index = data.get('index')
+   value = data.get('value')
    result = current_game.update_value(index, value)
    return jsonify(result)
 
