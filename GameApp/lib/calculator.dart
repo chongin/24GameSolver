@@ -27,7 +27,7 @@ class _CalculatorUIState extends State<CalculatorUI> {
         } else {
           // Timer has reached 0, show popup and update result
           _timer.cancel();
-          //_showTimeoutDialog();
+          _showTimeoutDialog();
           resultLabel = "You are Lost!";
         }
       });
@@ -38,6 +38,26 @@ class _CalculatorUIState extends State<CalculatorUI> {
     _timer.cancel();
     _timer = Timer(Duration.zero, () {});
     ;
+  }
+
+  Future<void> _showTimeoutDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Timeout'),
+          content: Text('Sorry, you ran out of time!'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
