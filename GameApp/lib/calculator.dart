@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'api_client.dart';
 import 'error_dialog.dart';
+import 'clock.dart';
 
 class CalculatorUI extends StatefulWidget {
   @override
@@ -10,38 +11,23 @@ class CalculatorUI extends StatefulWidget {
 
 class _CalculatorUIState extends State<CalculatorUI> {
   int _timerSeconds = 0;
-  late Timer _timer = Timer(Duration.zero, () {});
   bool isGameStarted = false;
-  String resultLabel = '';
-
+  String resultLabel = 'Welcome to play';
+  TextEditingController formulaController = TextEditingController();
   List<int> digits = [1, 2, 3, 4];
-  List<String> symbols = ['+', '-', '*', '/'];
-  List<List<String?>> selectedValues = List.generate(11, (index) => [null]);
+  List<String> symbols = ['(', ')', '+', '-', '*', '/',];
 
-   void startTimer() {
-    stopTimer();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_timerSeconds > 0) {
-          _timerSeconds--;
-        } else {
-          // Timer has reached 0, show popup and update result
-          _timer.cancel();
-          _showTimeoutDialog();
-          resultLabel = "You are Lost!";
-        }
-      });
-    });
+  late ClockUI clockUI;
+
+  @override
+  void initState() {
+    super.initState();
+    clockUI = ClockUI(onTimeout: handleTimeout);
   }
 
-  void stopTimer() {
-    _timer.cancel();
-    _timer = Timer(Duration.zero, () {});
-    ;
-  }
-
-  Future<void> _showTimeoutDialog() async {
-    await showDialog(
+  void handleTimeout() {
+    // Handle timeout logic here
+    showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -58,6 +44,31 @@ class _CalculatorUIState extends State<CalculatorUI> {
         );
       },
     );
+    setState(() {
+      resultLabel = "You are Lost!";
+    });
+  }
+
+  void startTimer() {
+    // clockUI.startTimer();
+  }
+
+  void stopTimer() {
+    // clockUI.stopTimer();
+  }
+
+  Future<void> onDigitButtonPressed(String digit) async {
+    bool success = await updateValue(formulaController.text.length, digit);
+    if ( success == true) {
+      formulaController.text = formulaController.text + digit;
+    }
+  }
+
+  Future<void> onSymbolButtonPressed(String symbol) async {
+    bool success = await updateValue(formulaController.text.length, symbol);
+    if ( success == true) {
+      formulaController.text = formulaController.text + symbol;
+    }
   }
 
   @override
@@ -70,21 +81,7 @@ class _CalculatorUIState extends State<CalculatorUI> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: EdgeInsets.all(60),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  'Time Remain: $_timerSeconds seconds',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              ClockUI(onTimeout: handleTimeout),
             ],
           ),
           SizedBox(height: 20),
@@ -98,18 +95,24 @@ class _CalculatorUIState extends State<CalculatorUI> {
                     isGameStarted = success;
                   });
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue,
+                  textStyle: TextStyle(fontSize: 18),
+                ),
                 child: Text('New Game'),
               ),
               SizedBox(width: 20),
               ElevatedButton(
-                onPressed: isGameStarted
-                    ? () async {
-                        await calculateAndUpdateResult();
-                        setState(() {
-                          isGameStarted = false;
-                        });
-                      }
-                    : null,
+                onPressed: isGameStarted ? () async {
+                  await calculateAndUpdateResult();
+                  setState(() {
+                    isGameStarted = false;
+                  });
+                } : null,
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue,
+                  textStyle: TextStyle(fontSize: 18),
+                ),
                 child: Text('Calculate'),
               ),
             ],
@@ -129,18 +132,17 @@ class _CalculatorUIState extends State<CalculatorUI> {
               for (int digit in digits)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(10),
+                  child: ElevatedButton(
+                    onPressed: isGameStarted ? () async {
+                      await onDigitButtonPressed(digit.toString());
+                    }: null,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue,
+                      textStyle: TextStyle(fontSize: 18),
                     ),
-                    child: Center(
-                      child: Text(
-                        digit.toString(),
-                        style: TextStyle(fontSize: 24, color: Colors.white),
-                      ),
+                    child: Text(
+                      digit.toString(),
+                      style: TextStyle(fontSize: 24, color: Colors.white),
                     ),
                   ),
                 ),
@@ -161,18 +163,17 @@ class _CalculatorUIState extends State<CalculatorUI> {
               for (String symbol in symbols)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(10),
+                  child: ElevatedButton(
+                    onPressed: isGameStarted ? () async {
+                      await onSymbolButtonPressed(symbol);
+                    }: null,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.yellow,
+                      textStyle: TextStyle(fontSize: 18),
                     ),
-                    child: Center(
-                      child: Text(
-                        symbol,
-                        style: TextStyle(fontSize: 24, color: Colors.white),
-                      ),
+                    child: Text(
+                      symbol,
+                      style: TextStyle(fontSize: 24, color: Colors.white),
                     ),
                   ),
                 ),
@@ -190,21 +191,16 @@ class _CalculatorUIState extends State<CalculatorUI> {
                 ),
               ),
               SizedBox(width: 10),
-              for (int i = 0; i < 11; i++)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CustomDropdownButton(
-                    items: getDropdownItems(),
-                    value: selectedValues[i][0],
-                    onChanged: (String? value) {
-                      setState(() {
-                        selectedValues[i][0] = value;
-                        updateValue(i, value);
-                        print('Dropdown Item Index: $i, Value: $value');
-                      });
-                    },
+              Expanded(
+                child: TextField(
+                  controller: formulaController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter your formula',
                   ),
+                  style: TextStyle(fontSize: 24),
                 ),
+              ),
             ],
           ),
           Row(
@@ -240,10 +236,9 @@ class _CalculatorUIState extends State<CalculatorUI> {
       await ApiClient.newGame((List<int> newDigits) {
         setState(() {
           // Update the digits value with the new data
+          resetData();
           digits = newDigits;
-          selectedValues = List.generate(11, (_) => [null]);
-          resultLabel = "Waiting Result";
-          _timerSeconds = 120; // Reset timer to initial value
+
           startTimer(); // Start the timer on New Game
         });
       });
@@ -257,14 +252,8 @@ class _CalculatorUIState extends State<CalculatorUI> {
 
   Future<void> calculateAndUpdateResult() async {
     stopTimer();
-    // Filter out null values from the selected dropdown values
-    List<String> selectedValuesList = selectedValues
-        .where((list) => list[0] != null)
-        .map((list) => list[0]!)
-        .toList();
-
-    // Compose the selected values into a string
-    String formula = selectedValuesList.join();
+    // Set the formula directly from the text field
+    String formula = formulaController.text;
 
     try {
       // Call the API to calculate the result
@@ -284,56 +273,21 @@ class _CalculatorUIState extends State<CalculatorUI> {
     }
   }
 
-  List<DropdownMenuItem<String?>> getDropdownItems() {
-    List<String> items = [
-      ...symbols,
-      ...digits.map((digit) => digit.toString())
-    ];
-
-    return items
-        .map(
-          (item) =>
-          DropdownMenuItem<String?>(
-            value: item,
-            child: Text(item),
-          ),
-    )
-        .toList();
-  }
-
-  Future<void> updateValue(int index, String? value) async {
+  Future<bool> updateValue(int index, String value) async {
     try {
       await ApiClient.updateValue(index, value);
+      return true;
     } catch (error) {
       DialogUtils.showErrorDialog(context,
           'An error occurred while processing the updateValue: $error');
+      return false;
     }
   }
-}
 
-class CustomDropdownButton<T> extends StatefulWidget {
-  final List<DropdownMenuItem<T>> items;
-  final T? value;
-  final ValueChanged<T?>? onChanged;
-
-  CustomDropdownButton({
-    required this.items,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  _CustomDropdownButtonState<T> createState() =>
-      _CustomDropdownButtonState<T>();
-}
-
-class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<T>(
-      items: widget.items,
-      value: widget.value,
-      onChanged: widget.onChanged,
-    );
+  void resetData() {
+    digits = [1,2,3,4];
+    resultLabel = "Waiting Result";
+    _timerSeconds = 120;
+    formulaController.text = "";
   }
 }
