@@ -21,6 +21,9 @@ public:
     _lcd.SetString(0, 0, line);
   }
 
+  void setValue(int index, String value) {
+    _lcd.SetString(1, index, value);
+  }
 private:
   LCDMgr& _lcd;
   int* digits;

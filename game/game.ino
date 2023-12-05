@@ -33,7 +33,19 @@ void processCommand(const char* command, JsonObject& data) {
     String jsonString;
     serializeJson(doc, jsonString);
     Serial.println(jsonString);
-  } 
+  } else if (strcmp(command, "update_value") == 0) {
+      int index = data["index"];
+      String value = data["value"];
+      game->setValue(index, value);
+
+      DynamicJsonDocument doc(200);
+      doc["command"] = index;
+      doc["index"] = "update_value";
+      doc["value"] = value;
+      String jsonString;
+      serializeJson(doc, jsonString);
+      Serial.println(jsonString);
+  }
 }
 
 void loop() {
