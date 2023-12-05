@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'api_client.dart'; // Import the ApiClient
 import 'dart:async';
+import 'error_dialog.dart';
 
 void main() {
   runApp(MyApp());
@@ -211,7 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (String? value) {
                       setState(() {
                         selectedValues[i][0] = value;
-                        ApiClient.updateValue(i, value);
+                        updateValue(i, value);
                         print('Dropdown Item Index: $i, Value: $value');
 
                       });
@@ -262,17 +263,31 @@ class _MyHomePageState extends State<MyHomePage> {
         .toList();
   }
 
-  void startNewGame() {
-    ApiClient.newGame((List<int> newDigits) {
-      setState(() {
-        // Update the digits value with the new data
-        digits = newDigits;
-        selectedValues = List.generate(11, (_) => [null]);
-        resultLabel = "Waiting Result";
-        _timerSeconds = 120; // Reset timer to initial value
-        startTimer(); // Start the timer on New Game
+  Future<void> startNewGame() async {
+    try {
+      await ApiClient.newGame((List<int> newDigits) {
+        setState(() {
+          // Update the digits value with the new data
+          digits = newDigits;
+          selectedValues = List.generate(11, (_) => [null]);
+          resultLabel = "Waiting Result";
+          _timerSeconds = 120; // Reset timer to initial value
+          startTimer(); // Start the timer on New Game
+        });
       });
-    });
+    }
+    catch (error) {
+      DialogUtils.showErrorDialog(context, 'An error occurred while processing the startNewGame: $error');
+    }
+  }
+
+  Future<void> updateValue(int index, String? value) async {
+    try {
+      await ApiClient.updateValue(index, value);
+    }
+    catch (error) {
+      DialogUtils.showErrorDialog(context, 'An error occurred while processing the updateValue: $error');
+    }
   }
 
   Future<void> calculateAndUpdateResult() async {
@@ -286,17 +301,22 @@ class _MyHomePageState extends State<MyHomePage> {
     // Compose the selected values into a string
     String formula = selectedValuesList.join();
 
-    // Call the API to calculate the result
-    int result = await ApiClient.calculateFormula(formula);
+    try {
+      // Call the API to calculate the result
+      int result = await ApiClient.calculateFormula(formula);
 
-    // Update the result label
-    setState(() {
-      if (result == 24) {
-        resultLabel = '$result: You win!';
-      } else {
-        resultLabel = '$result: You lost!';
-      }
-    });
+      // Update the result label
+      setState(() {
+        if (result == 24) {
+          resultLabel = '$result: You win!';
+        } else {
+          resultLabel = '$result: You lost!';
+        }
+      });
+    }
+    catch (error) {
+      DialogUtils.showErrorDialog(context, 'An error occurred while processing the calculateAndUpdateResult: $error');
+    }
   }
 }
 
