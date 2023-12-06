@@ -3,17 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'calculator.dart';
 import 'camera_view.dart';
+import 'login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final cameras = await availableCameras();
-  runApp(MyApp(cameras: cameras));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final List<CameraDescription> cameras;
-
-  const MyApp({Key? key, required this.cameras}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +20,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(cameras: cameras),
+      home: LoginPage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  final List<CameraDescription> cameras;
-
-  MyHomePage({Key? key, required this.cameras}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -41,15 +37,35 @@ class _MyHomePageState extends State<MyHomePage> {
   final firstLine = "How to Play";
   final secondLine = "Make the number 24 from the four numbers shown. You can add, subtract, multiply and divide. Use all four numbers on the card, but use each number only once. ";
 
+  late List<CameraDescription>? cameras;
+  bool isCameraInitialized = false;
   @override
   void initState() {
     super.initState();
-    // Set the initial selected camera to the first one in the list
-    selectedCamera = widget.cameras.first;
+    initializeCameras();
+  }
+
+  Future<void> initializeCameras() async {
+    cameras = await availableCameras();
+    selectedCamera = cameras!.first;
+    if (mounted) {
+      setState(() {
+        isCameraInitialized = true;
+      }); // Trigger a rebuild after obtaining cameras
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!isCameraInitialized) {
+      // Show loading or error indicator
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -103,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             });
                           }
                         },
-                        items: widget.cameras
+                        items: cameras!
                             .map<DropdownMenuItem<CameraDescription>>(
                               (CameraDescription camera) {
                             return DropdownMenuItem<CameraDescription>(
@@ -111,8 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Text(camera.name),
                             );
                           },
-                        )
-                            .toList(),
+                        ).toList(),
                       ),
                       Expanded(
                         child: CameraView(camera: selectedCamera),
