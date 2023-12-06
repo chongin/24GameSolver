@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 
 class CameraView extends StatefulWidget {
-  final List<CameraDescription> cameras;
+  final CameraDescription camera;
 
-  CameraView({Key? key, required this.cameras}) : super(key: key);
+  CameraView({Key? key, required this.camera}) : super(key: key);
 
   @override
   _CameraViewState createState() => _CameraViewState();
@@ -20,7 +20,7 @@ class _CameraViewState extends State<CameraView> {
   @override
   void initState() {
     super.initState();
-    _selectedCamera = widget.cameras.first;
+    _selectedCamera = widget.camera;
     _controller = CameraController(
       _selectedCamera,
       ResolutionPreset.medium,
@@ -32,6 +32,19 @@ class _CameraViewState extends State<CameraView> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(CameraView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.camera != oldWidget.camera) {
+      _selectedCamera = widget.camera;
+      _controller = CameraController(
+        _selectedCamera,
+        ResolutionPreset.medium,
+      );
+      _initializeControllerFuture = _controller.initialize();
+    }
   }
 
   @override

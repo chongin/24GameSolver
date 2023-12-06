@@ -39,6 +39,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late CameraDescription selectedCamera;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set the initial selected camera to the first one in the list
+    selectedCamera = widget.cameras.first;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,11 +64,36 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: SafeArea(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
                   child: CalculatorUI(),
                 ),
-                CameraView(cameras: widget.cameras),
+                Column(
+                  children: [
+                    DropdownButton<CameraDescription>(
+                      value: selectedCamera,
+                      onChanged: (CameraDescription? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedCamera = newValue;
+                          });
+                        }
+                      },
+                      items: widget.cameras.map<DropdownMenuItem<CameraDescription>>(
+                            (CameraDescription camera) {
+                          return DropdownMenuItem<CameraDescription>(
+                            value: camera,
+                            child: Text(camera.name),
+                          );
+                        },
+                      ).toList(),
+                    ),
+                    Expanded(
+                        child: CameraView(camera: selectedCamera)
+                    ),
+                  ],
+                )
               ],
             )
 
