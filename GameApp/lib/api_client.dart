@@ -6,7 +6,8 @@ import 'package:http/http.dart' as http;
 
 class ApiClient {
   //static String baseUri = 'http://192.168.2.44:5000';
-  static String baseUri = 'http://127.0.0.1:5000';
+  //static String baseUri = 'http://127.0.0.1:5000';
+  static String baseUri = 'http://192.168.0.115:5000';
 
   static Future<void> updateValue(int index, String? value) async {
     print('API Call: update_value - Index: $index, Value: $value');

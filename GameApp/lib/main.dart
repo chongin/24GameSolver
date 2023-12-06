@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'api_client.dart';
-import 'error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'calculator.dart';
@@ -40,6 +38,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late CameraDescription selectedCamera;
+  final firstLine = "How to Play";
+  final secondLine = "Make the number 24 from the four numbers shown. You can add, subtract, multiply and divide. Use all four numbers on the card, but use each number only once. ";
 
   @override
   void initState() {
@@ -48,56 +48,83 @@ class _MyHomePageState extends State<MyHomePage> {
     selectedCamera = widget.cameras.first;
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            '24 Game Solver',
-            style: TextStyle(
-              fontSize: 30, // Adjust the font size as needed
-              fontWeight: FontWeight.bold, // Add bold font weight
-              color: Colors.deepPurple, // Set your desired color
-            ),
+      appBar: AppBar(
+        title: Text(
+          '24 Game Solver',
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Colors.deepPurple,
           ),
         ),
-        body: SafeArea(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: CalculatorUI(),
-                ),
-                Column(
-                  children: [
-                    DropdownButton<CameraDescription>(
-                      value: selectedCamera,
-                      onChanged: (CameraDescription? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            selectedCamera = newValue;
-                          });
-                        }
-                      },
-                      items: widget.cameras.map<DropdownMenuItem<CameraDescription>>(
-                            (CameraDescription camera) {
-                          return DropdownMenuItem<CameraDescription>(
-                            value: camera,
-                            child: Text(camera.name),
-                          );
+      ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: EdgeInsets.all(16),
+              color: Colors.lightBlue,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    firstLine,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    secondLine,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: CalculatorUI(),
+                  ),
+                  Column(
+                    children: [
+                      DropdownButton<CameraDescription>(
+                        value: selectedCamera,
+                        onChanged: (CameraDescription? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              selectedCamera = newValue;
+                            });
+                          }
                         },
-                      ).toList(),
-                    ),
-                    Expanded(
-                        child: CameraView(camera: selectedCamera)
-                    ),
-                  ],
-                )
-              ],
-            )
-
-        )
+                        items: widget.cameras
+                            .map<DropdownMenuItem<CameraDescription>>(
+                              (CameraDescription camera) {
+                            return DropdownMenuItem<CameraDescription>(
+                              value: camera,
+                              child: Text(camera.name),
+                            );
+                          },
+                        )
+                            .toList(),
+                      ),
+                      Expanded(
+                        child: CameraView(camera: selectedCamera),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
