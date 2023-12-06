@@ -26,8 +26,8 @@ class LED:
 
 class WinLED(LED):
     def __init__(self):
-        super().__init__(pin=26)
+        super().__init__(pin=20)
 
 class LoseLED(LED):
     def __init__(self):
-        super().__init__(pin=20)
+        super().__init__(pin=26)
