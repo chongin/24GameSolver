@@ -51,7 +51,8 @@ class _CalculatorUIState extends State<CalculatorUI> {
       },
     );
     setState(() {
-      resultLabel = "You are Lost!";
+      resultLabel = "You are Timeout!";
+      isGameStarted = false;
     });
   }
 
@@ -236,6 +237,17 @@ class _CalculatorUIState extends State<CalculatorUI> {
               ),
               SizedBox(width: 10), // Add space between the TextField and the Clear button
               ElevatedButton(
+                onPressed: (isGameStarted && formulaController.text.isNotEmpty) ? () async {
+                  await deleteValue();
+                }: null,
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue,
+                  textStyle: TextStyle(fontSize: 18),
+                ),
+                child: Text('Delete'),
+              ),
+              SizedBox(width: 10), // Add space between the TextField and the Clear button
+              ElevatedButton(
                 onPressed: isGameStarted ? () async {
                   bool result = await clearFormula();
                   if (result == true) {
@@ -344,6 +356,22 @@ class _CalculatorUIState extends State<CalculatorUI> {
       return false;
     }
   }
+
+  Future<bool> deleteValue() async {
+    try {
+      if (formulaController.text.isNotEmpty) {
+        int last_index = formulaController.text.length - 1;
+        formulaController.text = formulaController.text.substring(0, formulaController.text.length - 1);
+        await ApiClient.deleteValue(last_index);
+      }
+      return true;
+    } catch (error) {
+      DialogUtils.showErrorDialog(context,
+          'An error occurred while processing the deleteValue: $error');
+      return false;
+    }
+  }
+
   void resetData() {
     digits = [1,2,3,4];
     resultLabel = "Waiting Result";

@@ -47,6 +47,22 @@ class Game:
                 'value': value
             }
 
+    def delete_value(self, index: int) -> dict:
+        print(f"Receive delete_value index: {index}, value")
+        if (0 <= index < len(self.items)):
+            self.items[index] = None
+            self.serial_comunication.send_data("delete_value", {
+                'index': index
+            })
+            
+            return {
+                'index': index
+            }
+        else:
+            return {
+                'error': 'OverRangeError',
+                'index': index
+            }
     def calculate_result(self, formula: str):
         current_formula = self.compose_formula()
         if current_formula != formula:
@@ -66,7 +82,7 @@ class Game:
         else:
             self.win_led.off()
             self.lost_led.on()
-            
+
         return {
             'result': int(result),
             'win': result == 24

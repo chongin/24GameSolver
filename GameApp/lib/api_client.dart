@@ -88,4 +88,26 @@ class ApiClient {
           'Failed to clear formula. Status code: ${response.statusCode}');
     }
   }
+
+  static Future<void> deleteValue(int index) async {
+    final Uri uri = Uri.parse('$baseUri/games/delete_value');
+    final Map<String, String> headers = {'Content-Type': 'application/json'};
+    final Map<String, dynamic> requestBody = {'index': index};
+
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonEncode(requestBody),
+    );
+
+    print('API Call: delete index value: $index');
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      print('Response Data: $responseData');
+    } else {
+      throw Exception(
+          'Failed to delete Value. Status code: ${response.statusCode}');
+    }
+  }
 }
