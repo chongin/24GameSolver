@@ -56,6 +56,12 @@ def calculate_result():
       return jsonify(result)
    else:
         return jsonify({"error": "Missing 'formula' in the request body"})
+   
+@app.route('/games/clear_formula', methods=['POST'])
+def clear_value():
+   data = request.get_json()
+   result = current_game.clear_value()
+   return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)

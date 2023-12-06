@@ -51,12 +51,25 @@ class Game:
             }
         
         result = self.calc_formula(formula)
-        
+        self.serial_comunication.send_data("show_result", {
+            'result': f"{current_formula}={(int)(result)}"
+        })
+
         return {
             'result': int(result),
             'win': result == 24
         }
     
+    def clear_value(self):
+        for item in self.items:
+            item = None
+
+        self.serial_comunication.send_data("clear_value", "")
+        return {
+            'result': 'OK'
+        }
+        
+
     def evaluate_formula(self, formula):
         formula = formula.replace(" ", "")
         num = 0
