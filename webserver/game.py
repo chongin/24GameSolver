@@ -5,11 +5,14 @@ from serial_comunication import SerialCommunication
 class Game:
     MAX_ITEMS = 11
     
-    def __init__(self, serial_communication: SerialCommunication) -> None:
+    def __init__(self, serial_communication: SerialCommunication, win_led, lost_led) -> None:
         deck_generator = GameDeckGenerator()
         self.digits = deck_generator.random_one_set()
         self.items = [None] * self.MAX_ITEMS
         self.serial_comunication = serial_communication
+        self.win_led = win_led
+        self.lost_led = lost_led
+
         self.send_new_game_data()
         
     def compose_formula(self):
@@ -21,6 +24,8 @@ class Game:
         data = {
             "digits": self.digits
         }
+        self.lost_led.off()
+        self.win_led.off()
         self.serial_comunication.send_data("new_game", data)
 
     def update_value(self, index: int, value: str) -> dict:
@@ -55,6 +60,13 @@ class Game:
             'result': f"{current_formula}={(int)(result)}"
         })
 
+        if result == 24:
+            self.win_led.on()
+            self.lost_led.off()
+        else:
+            self.win_led.off()
+            self.lost_led.on()
+            
         return {
             'result': int(result),
             'win': result == 24

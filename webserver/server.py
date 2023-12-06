@@ -3,6 +3,7 @@ from flask_cors import CORS
 from game import Game
 from serial_comunication import SerialCommunication
 import threading
+#from led import WinLED,LoseLED
 
 app = Flask(__name__)
 CORS(app) 
@@ -21,19 +22,33 @@ class MockSerialCommunication:
    def run_communication(self):
       pass
 
+class MockWinLed:
+   def on(self):
+      print("Win led on")
+
+   def off(self):
+      print("Win led off")
+
+class MockLoseLed:
+   def on(self):
+      print("Lose led on")
+
+   def off(self):
+      print("Lose led off")
 
 mock = False
 current_game = None
 port = '/dev/cu.usbmodem11401'
 serial_comunication = SerialCommunication(port) if not mock else MockSerialCommunication(port)
-
+win_led = MockWinLed()
+lose_led = MockLoseLed()
 serial_thread = threading.Thread(target=serial_comunication.run_communication)
 serial_thread.start()
 
 @app.route('/games/new_game', methods=['GET'])
 def new_game():
    global current_game
-   current_game = Game(serial_comunication)
+   current_game = Game(serial_comunication, win_led, lose_led)
    return jsonify({'digits': current_game.digits})
 
 @app.route('/games/update_value', methods=['POST'])
