@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Lcd.h"
+
 class Game {
 public:
   Game(LCDMgr& lcd) : _lcd(lcd) {

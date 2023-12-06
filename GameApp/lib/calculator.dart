@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'api_client.dart';
 import 'error_dialog.dart';
-import 'clock.dart';
+
 
 class CalculatorUI extends StatefulWidget {
   @override
@@ -10,19 +10,25 @@ class CalculatorUI extends StatefulWidget {
 }
 
 class _CalculatorUIState extends State<CalculatorUI> {
-  int _timerSeconds = 0;
   bool isGameStarted = false;
   String resultLabel = 'Welcome to play';
   TextEditingController formulaController = TextEditingController();
   List<int> digits = [1, 2, 3, 4];
   List<String> symbols = ['(', ')', '+', '-', '*', '/',];
+  int _timerSeconds = 0;
+  late Timer _timer;
 
-  late ClockUI clockUI;
 
   @override
   void initState() {
     super.initState();
-    clockUI = ClockUI(onTimeout: handleTimeout);
+    _timer = Timer(Duration.zero, () {});
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   void handleTimeout() {
@@ -50,11 +56,23 @@ class _CalculatorUIState extends State<CalculatorUI> {
   }
 
   void startTimer() {
-    // clockUI.startTimer();
+    stopTimer();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_timerSeconds > 0) {
+          _timerSeconds--;
+        } else {
+          // Timer has reached 0, show popup and update result
+          _timer.cancel();
+          handleTimeout();
+        }
+      });
+    });
   }
 
   void stopTimer() {
-    // clockUI.stopTimer();
+    _timer.cancel();
+    _timer = Timer(Duration.zero, () {});
   }
 
   Future<void> onDigitButtonPressed(String digit) async {
@@ -81,7 +99,21 @@ class _CalculatorUIState extends State<CalculatorUI> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ClockUI(onTimeout: handleTimeout),
+              Container(
+                padding: EdgeInsets.all(60),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'Time Remain: $_timerSeconds seconds',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              )
             ],
           ),
           SizedBox(height: 20),
