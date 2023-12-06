@@ -77,11 +77,12 @@ class Game:
         })
 
         if result == 24:
-            self.win_led.on()
             self.lost_led.off()
+            self.win_led.handle_on()
+            
         else:
             self.win_led.off()
-            self.lost_led.on()
+            self.lost_led.handle_on()
 
         return {
             'result': int(result),

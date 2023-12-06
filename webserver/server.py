@@ -23,27 +23,27 @@ class MockSerialCommunication:
       pass
 
 class MockWinLed:
-   def on(self):
+   def handle_on(self):
       print("Win led on")
 
-   def off(self):
+   def handle_off(self):
       print("Win led off")
 
 class MockLoseLed:
-   def on(self):
+   def handle_on(self):
       print("Lose led on")
 
    def off(self):
-      print("Lose led off")
+      handle_off("Lose led off")
 
-mock = True
+mock = False
 current_game = None
 serial_comunication = None
 win_led = None
 lose_led = None
 
-port = '/dev/cu.usbmodem11401'
-#port = '/dev/ttyACM'
+#port = '/dev/cu.usbmodem11401'
+port = '/dev/ttyACM1'
 
 if mock is True:
    serial_comunication = MockSerialCommunication(port)
@@ -51,9 +51,9 @@ if mock is True:
    lose_led = MockLoseLed()
 else:
    serial_comunication = SerialCommunication(port)
-   # from led import WinLED,LoseLED
-   # win_led = WinLED()
-   # lose_led = LoseLed()
+   from led import WinLED,LoseLED
+   win_led = WinLED()
+   lose_led = LoseLED()
 
 
 serial_thread = threading.Thread(target=serial_comunication.run_communication)
@@ -109,4 +109,4 @@ def delete_value():
    return jsonify(result), check_error_key(result)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='192.168.0.115', debug=True)

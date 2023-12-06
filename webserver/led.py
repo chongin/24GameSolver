@@ -13,7 +13,7 @@ class LED:
     def off(self):
         GPIO.output(self.pin, GPIO.LOW)
 
-    def blink(self, duration=1, repetitions=1):
+    def blink(self, duration=0.5, repetitions=3):
         for _ in range(repetitions):
             self.on()
             time.sleep(duration)
@@ -23,11 +23,19 @@ class LED:
     def cleanup(self):
         GPIO.cleanup()
 
+    def handle_on(self):
+        self.blink()
+        self.on()
+    
+    def handle_off(self):
+        self.blink()
+        self.off()
 
 class WinLED(LED):
     def __init__(self):
-        super().__init__(pin=20)
+        super().__init__(pin=26)
+
 
 class LoseLED(LED):
     def __init__(self):
-        super().__init__(pin=26)
+        super().__init__(pin=20)
