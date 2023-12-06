@@ -22,9 +22,9 @@ class MockSerialCommunication:
       pass
 
 
-mock = True
+mock = False
 current_game = None
-port = '/dev/cu.usbmodem11101'
+port = '/dev/cu.usbmodem11401'
 serial_comunication = SerialCommunication(port) if not mock else MockSerialCommunication(port)
 
 serial_thread = threading.Thread(target=serial_comunication.run_communication)

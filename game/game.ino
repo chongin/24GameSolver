@@ -10,6 +10,13 @@ void setup() {
   Serial.println("Ready");
 }
 
+void send_response(DynamicJsonDocument& doc)
+{
+  String jsonString;
+  serializeJson(doc, jsonString);
+  Serial.println(jsonString);
+}
+
 void processCommand(const char* command, JsonObject& data) {
   if (strcmp(command, "new_game") == 0) {
     game = new Game(lcdManager);
@@ -30,21 +37,31 @@ void processCommand(const char* command, JsonObject& data) {
     doc["command"] = "new_game";
     doc["data"] = digitsJsonArray;
 
-    String jsonString;
-    serializeJson(doc, jsonString);
-    Serial.println(jsonString);
+    send_response(doc);
   } else if (strcmp(command, "update_value") == 0) {
       int index = data["index"];
       String value = data["value"];
       game->setValue(index, value);
 
       DynamicJsonDocument doc(200);
-      doc["command"] = index;
-      doc["index"] = "update_value";
+      doc["command"] = command;
+      doc["index"] = index;
       doc["value"] = value;
-      String jsonString;
-      serializeJson(doc, jsonString);
-      Serial.println(jsonString);
+      send_response(doc);
+  } else if (strcmp(command, "clear_value") == 0) {
+    game->clearValue();
+    DynamicJsonDocument doc(200);
+    doc["command"] = command;
+    doc["result"] = "OK";
+    send_response(doc);
+  } else if (strcmp(command, "show_result") == 0) {
+    game->clearValue();
+    String result = data["result"];
+    game->setResult(result);
+    DynamicJsonDocument doc(200);
+    doc["command"] = command;
+    doc["result"] = result;
+    send_response(doc);
   }
 }
 

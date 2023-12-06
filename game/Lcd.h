@@ -23,12 +23,12 @@ public:
 
   void ResetScene() {
     _lcd->clear();
-    SetString(0, 4, "Chong In");
-    SetString(1, 4, "IOT 1012");
+    SetString(0, 1, "24 Game Solver");
+    SetString(1, 4, "Good Luck");
   }
 
-  void Update() {
-    // Refresh the LCD display
+  void ClearRow(int row) {
+    SetString(row, 0, "                ");
   }
 
   void SetString(int row, int col, const String& value) {
@@ -36,6 +36,10 @@ public:
     _lcd->print(value);
   }
 
+  void Update()
+  {
+
+  }
 private:
   LiquidCrystal* _lcd;
 };
